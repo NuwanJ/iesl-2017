@@ -27,11 +27,21 @@ void serialEvent() {
       Serial.println(">> Beep...");
     }
 
+    //-------------------------------------------------------------------------------------------------------------- 0 -> Start game
+    else if (inChar == '0') {
+      mode = WHITE_SQUARE;
+      lineType = WHITE;
+      motorWrite(200, 200);
+      Serial.println(">> Beep...");
+    }
+
     //-------------------------------------------------------------------------------------------------------------- q -> print IR sensor values
     else if (inChar == 'q') {
-      readSensorLine(sensor_values);
+      linePos = readSensorLine(sensor_values);
+      Serial.print(linePos);
+      Serial.print(" | ");
       Serial.println(irLineString);
-     
+
     }
 
     //-------------------------------------------------------------------------------------------------------------- s -> ???
@@ -48,15 +58,16 @@ void serialEvent() {
 
     //-------------------------------------------------------------------------------------------------------------- t -> test
     else if (inChar == 't') {
-
+      mode == BEGIN;
     }
     //-------------------------------------------------------------------------------------------------------------- 2,4,5,6,7,8,9-> bluetooth mode
     else if (mode == BLUETOOTH) {
 
-      if  (inChar == '8')motorWrite(baseSpeed, baseSpeed);
-      else if (inChar == '2')motorWrite(-1 * baseSpeed, -1 * baseSpeed);
+      if  (inChar == '8')motorWrite(maxSpeed, maxSpeed);
+      else if (inChar == '2')motorWrite(-1 * maxSpeed, -1 * maxSpeed);
       else if (inChar == '4')motorWrite(baseSpeed, -1 * baseSpeed);
       else if (inChar == '6')motorWrite(-1 * baseSpeed, baseSpeed);
+      else if (inChar == '5')motorWrite(0, 0);
 
     }
 

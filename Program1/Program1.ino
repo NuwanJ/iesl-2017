@@ -14,7 +14,7 @@ void setup() {
 
   irSensorsBegin();
   eepromBegin();
-  //lineFollowBegin();
+  lineFollowBegin();
   //sonarBegin();
 
   motorsBegin();
@@ -25,6 +25,7 @@ void setup() {
   pinMode(PIN_LED, OUTPUT);
   //loadEEPROM(); // loading EEPROM data
 
+  beep(2);
 }
 
 void test() {

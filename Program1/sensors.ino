@@ -16,22 +16,12 @@ void irSensorsBegin() {
 
 }
 
-void sonarBegin() {
-
-  /*Serial.println(">> Sonar : Begin");
-
-    pinMode(PIN_TRIGGER, OUTPUT);
-    pinMode(PIN_ECHO, INPUT);
-    digitalWrite(PIN_TRIGGER, LOW);*/
-}
 
 int readSensorLine(unsigned int *sensor_values) {
   delay(10);
-  
+
   weight = 0;
   sum = 0;
-  allIn = false;
-  allOut = false;
   irLineString = "";
 
   for (int i = 0; i < NUM_SENSORS; i++) {
@@ -43,8 +33,11 @@ int readSensorLine(unsigned int *sensor_values) {
     irLineString = (String)value + " " + irLineString;
   }
 
-  if (sum == NUM_SENSORS) allIn = true;
-  if (sum == 0) allOut = true;
+  allOut = (sum ==0) ? true : false;
+  allIn  = (sum ==NUM_SENSORS) ? true : false;
+  
+  leftEnd = sensor_values[NUM_SENSORS - 1];
+  rightEnd = sensor_values[0];
 
   if (allOut)
   {
@@ -60,10 +53,9 @@ int readSensorLine(unsigned int *sensor_values) {
   } else {
     lastReading = weight / sum;
   }
-
-
   //if (0)Serial.print(">> IR : "); Serial.println(irLineString);
 
+  // Left-most and right-most sensors
   return lastReading;
 }
 
@@ -78,18 +70,29 @@ int irSensorRead(int num) {
   return reading;
 }
 
-int getSonarDistance() {
 
-  /*digitalWrite(PIN_TRIGGER, HIGH);
-    delayMicroseconds(20);
-    digitalWrite(PIN_TRIGGER, LOW);
+#if defined(SONAR_SENSORS)
+void sonarBegin() {
 
-    duration = pulseIn(PIN_ECHO, HIGH, 30000);
-    distance = duration / 58;
+  Serial.println(">> Sonar : Begin");
 
-    if (distance > maxDistance) {
-    //distance = maxDistance;
-    }
-    return distance;*/
+  pinMode(PIN_TRIGGER, OUTPUT);
+  pinMode(PIN_ECHO, INPUT);
+  digitalWrite(PIN_TRIGGER, LOW); * /
 }
 
+int getSonarDistance() {
+
+  digitalWrite(PIN_TRIGGER, HIGH);
+  delayMicroseconds(20);
+  digitalWrite(PIN_TRIGGER, LOW);
+
+  duration = pulseIn(PIN_ECHO, HIGH, 30000);
+  distance = duration / 58;
+
+  if (distance > maxDistance) {
+    //distance = maxDistance;
+  }
+  return distance;
+}
+#endif

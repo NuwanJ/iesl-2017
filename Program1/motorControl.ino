@@ -9,21 +9,6 @@
 
 ****************************************************************************/
 
-/*
-
-
-  void motorWrite(int left, int right) {
-
-  int leftDir = (left > 0) ? 1 : 0;
-  int rightDir = (right > 0) ? 1 : 0;
-  int
-  motorWrite()
-
-  }
-*/
-
-
-
 void motorsBegin() {
 
   Serial.println(">> MotorControl : Begin...");
@@ -45,7 +30,7 @@ void motorWrite(int leftMotorSpeed, int rightMotorSpeed) {
   //leftMotorSpeed += drift;
   //rightMotorSpeed -= drift;
 
-  if (leftMotorSpeed != leftSpd) {
+  if (leftMotorSpeed != leftSpd) {              // Left Motor
     leftSpd = leftMotorSpeed;
 
     if (leftMotorSpeed > 0) {
@@ -53,9 +38,10 @@ void motorWrite(int leftMotorSpeed, int rightMotorSpeed) {
       digitalWrite(leftMotor2, LOW);
 
     } else if (leftMotorSpeed < 0) {
-      leftMotorSpeed  *= - slowFactor;
+      leftMotorSpeed  *= -1;
       digitalWrite(leftMotor1, LOW);
       digitalWrite(leftMotor2, HIGH);
+
 
     } else {
       digitalWrite(leftMotor1, LOW);
@@ -63,29 +49,32 @@ void motorWrite(int leftMotorSpeed, int rightMotorSpeed) {
     }
   }
 
-  if (rightMotorSpeed != rightSpd) {
+  if (rightMotorSpeed != rightSpd) {              // Right Motor
     rightSpd = rightMotorSpeed;
 
     if (rightMotorSpeed > 0) {
       digitalWrite(rightMotor1, HIGH);
       digitalWrite(rightMotor2, LOW);
+
     } else if (rightMotorSpeed < 0) {
-      rightMotorSpeed *= - slowFactor;
+      rightMotorSpeed *= -1;
       digitalWrite(rightMotor1, LOW);
       digitalWrite(rightMotor2, HIGH);
+
     } else {
       digitalWrite(rightMotor1, LOW);
       digitalWrite(rightMotor2, LOW);
     }
   }
 
-  if (rightMotorSpeed > maxSpeed ) rightMotorSpeed = maxSpeed;
-  if (leftMotorSpeed > maxSpeed ) leftMotorSpeed = maxSpeed;
+  // Limit motor speed below maxSpeed
+  rightMotorSpeed =  min(rightMotorSpeed, maxSpeed) ;
+  leftMotorSpeed =  min(leftMotorSpeed, maxSpeed) ;
 
   analogWrite(leftMotorPWM, leftMotorSpeed);
   analogWrite(rightMotorPWM, rightMotorSpeed);
 
-  if (debug == true) {
+  if (debug) {
     Serial.print(">> L:"); Serial.print(leftMotorSpeed); Serial.print(" R:"); Serial.println(rightMotorSpeed);
   }
 }
@@ -104,6 +93,8 @@ void motorStop() {
   digitalWrite(leftMotor1, HIGH);
   digitalWrite(leftMotor2, HIGH);
 
+  leftSpd = 0;
+  rightSpd = 0;
 }
 
 void motorLeft(int spd) {
@@ -115,11 +106,11 @@ void motorRight(int spd)
   motorWrite(spd, 0);
 }
 
-void wait() {
+void motorWait() {
   motorWrite(0, 0);
 }
 
-void wait(int d) {
+void motorWait(int d) {
   motorWrite(0, 0);
   delay(d);
 }
@@ -145,4 +136,115 @@ void calibrateSpeed() {
   }
 }
 
+
+
+void rotate90(int dir) {
+
+  // Rotate CCW/CW until middle sensor left line
+
+  linePos = readSensorLine(sensor_values);
+
+  if (dir == CCW) {
+    while (linePos <= CENTER_EDGE_READING) {
+      motorWrite(baseSpeed, -1 * baseSpeed);
+      linePos = readSensorLine(sensor_values);
+      delay(10);
+    }
+  } else {
+    while (linePos >= CENTER_EDGE_READING) {
+      motorWrite(-1 * baseSpeed, baseSpeed);
+      linePos = readSensorLine(sensor_values);
+      delay(10);
+    }
+  }
+  motorStop();
+  delay(10);
+
+  // Rotate CCW/CW until robot centered to new line segment
+
+  linePos = readSensorLine(sensor_values);
+  while (linePos != CENTER_EDGE_READING) {
+    linePos = readSensorLine(sensor_values);
+
+    if (dir == CCW) {
+      if (linePos <= CENTER_EDGE_READING) error = 20;
+      else error = linePos - CENTER_EDGE_READING;
+
+    } else {
+      if (linePos <= CENTER_EDGE_READING) error = -20;
+      else error = -1 * (linePos - CENTER_EDGE_READING);
+
+    }
+    rightMotorSpeed = baseSpeed / 2 + (error * -10);
+    leftMotorSpeed = baseSpeed / 2 - (error * -10);
+
+    motorWrite(leftMotorSpeed, rightMotorSpeed);
+    delay(10);
+  }
+
+  motorStop();
+  //findEnd();
+
+}
+
+void findEnd() {
+
+  linePos = readSensorLine(sensor_values);
+  // If the robot meets the end, condition satisfy
+  while  (sum < 4) { //((allIn || ((linePos >= 30 || linePos <= 20) && sum == 4)) == 0) {
+    lineFollow(linePos);
+    linePos = readSensorLine(sensor_values);
+    Serial.println(linePos);
+    delay(20);
+  }
+  motorStop();
+  motorWrite(-150, -150);
+  delay(70);
+  motorStop();
+}
+
+
+void backToLine() {
+  Serial.println("*");
+  // Rotate CCW until robot left line
+  motorWrite(-150, -150);
+  delay(100);
+  
+  linePos = readSensorLine(sensor_values);
+  while (allOut) {
+    motorWrite(baseSpeed, -1 * baseSpeed);
+    linePos = readSensorLine(sensor_values);
+    delay(10);
+  }
+  motorStop();
+  //delay(10);
+
+  // Rotate CCW until robot centered to new line segment
+  Serial.println("**");
+  linePos = readSensorLine(sensor_values);
+  while (linePos != CENTER_EDGE_READING) {
+    linePos = readSensorLine(sensor_values);
+
+    if (linePos <= CENTER_EDGE_READING) error = 20;
+    else error = linePos - CENTER_EDGE_READING;
+
+    rightMotorSpeed = baseSpeed + (error * -10);
+    leftMotorSpeed = baseSpeed - (error * -10);
+    motorWrite(leftMotorSpeed, rightMotorSpeed);
+    delay(10);
+  }
+  motorStop();
+  Serial.println("***");
+  delay(500);
+
+  // Now go forward until robot meet the main line
+  linePos = readSensorLine(sensor_values);
+  while (leftEnd == 1 && rightEnd == 1) {
+    linePos = readSensorLine(sensor_values);
+    lineFollow(linePos);
+    delay(10);
+  }
+  motorStop();
+  Serial.println("****");
+}
 

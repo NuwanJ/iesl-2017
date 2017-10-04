@@ -8,36 +8,45 @@
 ****************************************************************************/
 
 void lineFollowBegin() {
-  //lineType = BLACK;
+  //lineType = WHITE;
+  lineType = BLACK;
 }
 
-void lineFollow() {
+void lineFollow(int pos) {
 
-  pos = readSensorLine(sensor_values);
-  error = (pos - CENTER_EDGE_READING);
+  //pos = readSensorLine(sensor_values);
+  error = -1 * (pos - CENTER_EDGE_READING);
 
-  if (debug == true) {
-    Serial.println(irLineString);
-  }
+  if (debug) Serial.println(error);//irLineString
 
-  if (error != lastError) {
+  if (error != lastError || error == 0) {
 
     //PID Calculating
     int motorSpeed = calculatePID(error);
 
-    //Assigning motor speeds
-    int rightMotorSpeed = baseSpeed + motorSpeed;
-    int leftMotorSpeed = baseSpeed - motorSpeed;
+    if (error == 0) {
+      rightMotorSpeed = maxSpeed;
+      leftMotorSpeed = maxSpeed;
 
-    //Remapping motor speed
+    } else {
+
+      //Assigning motor speeds
+      rightMotorSpeed = baseSpeed + motorSpeed;
+      leftMotorSpeed = baseSpeed - motorSpeed;
+
+      if (leftMotorSpeed < 0) leftMotorSpeed = leftMotorSpeed * slowFactor ;
+      if (rightMotorSpeed < 0) rightMotorSpeed = rightMotorSpeed * slowFactor;
+    }
+
     motorWrite(leftMotorSpeed, rightMotorSpeed);
-
     lastError = error;
   }
+  delay(50);
 }
+
 int calculatePID(int error) {
 
-  int P = error * kP;
+  int P = error * 20;
   int I = I + (error * kI);
   int D = (error - lastError) * kD;
 
@@ -45,8 +54,3 @@ int calculatePID(int error) {
 
   return (P + I + D);
 }
-
-
-
-
-
