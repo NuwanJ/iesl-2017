@@ -19,7 +19,7 @@ void loop() {
         mode = WHITE_SQUARE;
         lineType = WHITE;
         motorWrite(200, 200);
-        
+
       } else {
         delay(10);
       }
@@ -88,7 +88,7 @@ void loop() {
         Serial.println("backToPath");
         backToPath();
         Serial.println("rotate CCW");
-        rotate90(CCW);
+        alignToPath(CCW);
 
         //motorWrite(150, 150);
         delay(250);
@@ -111,11 +111,31 @@ void loop() {
         // Find a T junction, just skip it
         motorStop();
         beep(i);
-        delay(10);
-        motorWrite(150, 150);
-        delay(250);
+        //delay(1000);
+
         i++;
         j++;
+
+        motorWrite(150, 150);
+        delay(250);
+        motorWrite(150, -150);
+        delay(150);
+        //delay(100);
+        //motorStop();
+
+        //Serial.println("rotate CW");
+        rotate90(CW);
+        Serial.println("findShelf");
+        findShelf();
+        Serial.println("backToPath");
+        backToPath();
+        Serial.println("rotate CW");
+
+        // if i ==6  alignToPath(CCW);
+        alignToPath(CW);
+
+        //motorWrite(150, 150);
+        delay(250);
 
         if (i == 6) {
           // End of the arena

@@ -8,7 +8,7 @@ void rotate90(int dir) {
 
   if (dir == CCW) {    // 25 -> 0 -> 50
     while (linePos <= CENTER_EDGE_READING) {
-      motorWrite( -1 *baseSpeed, baseSpeed);
+      motorWrite( -1 * baseSpeed, baseSpeed);
       linePos = readSensorLine(sensor_values);
       delay(10);
     }
@@ -74,7 +74,7 @@ void backToPath() {
 
   // Rotate CCW until robot left line
   linePos = readSensorLine(sensor_values);
-  while (allOut==0) {
+  while (allOut == 0) {
     motorWrite(-1 * baseSpeed, baseSpeed);
     delay(10);
     linePos = readSensorLine(sensor_values);
@@ -104,6 +104,47 @@ void backToPath() {
     delay(10);
     linePos = readSensorLine(sensor_values);
   }
+
+  motorWrite(150, 150);
+  delay(100);
   motorStop();
+}
+
+
+void alignToPath(int dir) {
+
+  // Rotate CCW/CW until middle sensor left line
+  linePos = readSensorLine(sensor_values);
+
+  // Away from line before take the turn
+  if (allOut == false) {
+    motorWrite(150, 150);
+    delay(10);
+    linePos = readSensorLine(sensor_values);
+  }
+  // Rotate CCW/CW until robot centered to new line segment
+
+  linePos = readSensorLine(sensor_values);
+  while (linePos != CENTER_EDGE_READING) {
+    linePos = readSensorLine(sensor_values);
+
+    if (dir == CCW) {
+      if (linePos <= CENTER_EDGE_READING) error = 20;
+      else error = linePos - CENTER_EDGE_READING;
+
+    } else {
+      if (linePos <= CENTER_EDGE_READING) error = -20;
+      else error = -1 * (linePos - CENTER_EDGE_READING);
+
+    }
+    rightMotorSpeed = baseSpeed / 2 + (error * 10);
+    leftMotorSpeed = baseSpeed / 2 - (error * 10);
+
+    motorWrite(leftMotorSpeed, rightMotorSpeed);
+    delay(10);
+  }
+
+  motorStop();
+
 }
 

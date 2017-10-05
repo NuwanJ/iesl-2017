@@ -56,8 +56,8 @@ int error = 0;
 int lastError = 0;
 
 // 11 12 10
-#define rightMotor1 8
-#define rightMotor2 7
+#define rightMotor1 7
+#define rightMotor2 8
 #define rightMotorPWM 9
 
 // 7 8 9
@@ -67,13 +67,13 @@ int lastError = 0;
 
 
 int leftSpd = 0, rightSpd = 0;
-const double slowFactor = 0.8; //0.5;
+const double slowFactor = 0.5;
 const double speedFactor = 1;
 
 int rightMotorSpeed = 0, leftMotorSpeed = 0;
 
-int maxSpeed = 120;
-int baseSpeed = 80;
+int maxSpeed = 250;
+int baseSpeed = 150;
 
 int drift = 0;
 int linePos = 0;
