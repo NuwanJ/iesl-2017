@@ -15,7 +15,7 @@ void lineFollowBegin() {
 void lineFollow(int pos) {
 
   //pos = readSensorLine(sensor_values);
-  error = -1 * (pos - CENTER_EDGE_READING);
+  error = (pos - CENTER_EDGE_READING);
 
   if (debug) Serial.println(error);//irLineString
 
@@ -41,14 +41,14 @@ void lineFollow(int pos) {
     motorWrite(leftMotorSpeed, rightMotorSpeed);
     lastError = error;
   }
-  delay(50);
+  //delay(50);
 }
 
 int calculatePID(int error) {
 
-  int P = error * 20;
+  int P = error * 10; // 20
   int I = I + (error * kI);
-  int D = (error - lastError) * kD;
+  int D = (error - lastError) * 0;
 
   lastError = error;
 

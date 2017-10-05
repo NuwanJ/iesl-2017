@@ -12,7 +12,7 @@ int lineType =  BLACK;
 #define BACK 2
 
 // Mode eNum
-enum {BEGIN, TEST, BLUETOOTH, LINE_FOLLOW, WHITE_SQUARE, FOLLOW_OUTER, FOLLOW_STORAGE};
+enum {BEGIN, TEST, BLUETOOTH, LINE_FOLLOW, WHITE_SQUARE, OUTER_FLOOR, STORAGE_FLOOR, PROD_FLOOR, OUTER_FLOOR_B, STORAGE_FLOOR_B, PROD_FLOOR_B, END_GAME};
 
 // EEPROM eNum
 enum {eP, eI, eD, eMax, eBase, eDebug};
@@ -55,22 +55,25 @@ int pos = CENTER_EDGE_READING;
 int error = 0;
 int lastError = 0;
 
-#define rightMotor1 11
-#define rightMotor2 12
-#define rightMotorPWM 10
+// 11 12 10
+#define rightMotor1 8
+#define rightMotor2 7
+#define rightMotorPWM 9
 
-#define leftMotor1 7
-#define leftMotor2 8
-#define leftMotorPWM 9
+// 7 8 9
+#define leftMotor1 11
+#define leftMotor2 12
+#define leftMotorPWM 10
+
 
 int leftSpd = 0, rightSpd = 0;
-const double slowFactor = 0.5;
+const double slowFactor = 0.8; //0.5;
 const double speedFactor = 1;
 
 int rightMotorSpeed = 0, leftMotorSpeed = 0;
 
-int maxSpeed = 230;
-int baseSpeed = 150;
+int maxSpeed = 120;
+int baseSpeed = 80;
 
 int drift = 0;
 int linePos = 0;

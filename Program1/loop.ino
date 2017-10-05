@@ -1,4 +1,5 @@
 int oldMode = mode;
+int i = 0, j = 0;
 
 void loop() {
   displayLoopStatus(mode);
@@ -10,9 +11,15 @@ void loop() {
       buttonStatus = digitalRead(BUTTON_1);
 
       if (buttonStatus == 0 ) {
+
+        /*motorWrite(150, -150);
+          delay(500);
+          motorStop();*/
+
         mode = WHITE_SQUARE;
         lineType = WHITE;
         motorWrite(200, 200);
+        
       } else {
         delay(10);
       }
@@ -25,8 +32,9 @@ void loop() {
       readSensorLine(sensor_values);
 
       if (allIn == 0 ) {    // Robo exits the square
-        motorWait(100);
-        mode = FOLLOW_OUTER;
+        motorWait(10);
+        mode = OUTER_FLOOR;
+
       } else {
         //test();
       }
@@ -34,13 +42,13 @@ void loop() {
       break;
 
     //-------------------------------------------------------------------------------------------------------------- Follow outer floor (White Line)
-    case FOLLOW_OUTER:
+    case OUTER_FLOOR:
 
       linePos = readSensorLine(sensor_values);
 
       if (leftEnd == 1 && rightEnd == 1) {    // Robo entered to storage floor
-        motorWait(100);
-        mode = FOLLOW_STORAGE;
+        motorWait(10);
+        mode = STORAGE_FLOOR;
         lineType = BLACK;
 
       } else {
@@ -50,41 +58,172 @@ void loop() {
       break;
 
     //-------------------------------------------------------------------------------------------------------------- Follow storage floor (Black Line)
-    case FOLLOW_STORAGE:
+    case STORAGE_FLOOR:
 
       linePos = readSensorLine(sensor_values);
 
-      if (leftEnd == 1) {
-        motorWait(1000);
-        Serial.println("rotate90");
+      if (leftEnd == 1 &&  rightEnd == 1 ) {
+        // End of the storage floor
+        lineType = WHITE;
+        i = 3;
+        j = 3;
+        mode = PROD_FLOOR;
+
+      } else  if (leftEnd == 1 && i < 3) {
+        // Find a T junction, just skip it
+        motorStop();
+        beep(i + 1);
+
+        motorWrite(150, 150);
+        delay(250);
+        motorWrite(-150, 150);
+        delay(150);
+        //delay(100);
+        //motorStop();
+
+        //Serial.println("rotate CCW");
         rotate90(CCW);
-        beep();
-        delay(1000);
-        Serial.println("findEnd");
-        findEnd();
-        beep();
-        delay(1000);
-        Serial.println("backToLine");
-        backToLine();
-        beep();
-        delay(1000);
-        Serial.println("Begin");
-        mode = BEGIN;
+        Serial.println("findShelf");
+        findShelf();
+        Serial.println("backToPath");
+        backToPath();
+        Serial.println("rotate CCW");
+        rotate90(CCW);
+
+        //motorWrite(150, 150);
+        delay(250);
+
+        i++;
+        j++;
+
       } else {
         lineFollow(linePos);
       }
 
       break;
 
+    //-------------------------------------------------------------------------------------------------------------- Follow production floor (White Line)
+    case PROD_FLOOR:
+
+      linePos = readSensorLine(sensor_values);
+
+      if (rightEnd == 1) {
+        // Find a T junction, just skip it
+        motorStop();
+        beep(i);
+        delay(10);
+        motorWrite(150, 150);
+        delay(250);
+        i++;
+        j++;
+
+        if (i == 6) {
+          // End of the arena
+          motorStop();
+          delay(5000);
+          mode = PROD_FLOOR_B;
+        }
+
+      } else {
+        lineFollow(linePos);
+      }
+
+      break;
+
+    //-------------------------------------------------------------------------------------------------------------- Follow production floor reverse (White Line)
+    case PROD_FLOOR_B:
+
+      linePos = readSensorLine(sensor_values);
+
+      if (leftEnd == 1 && rightEnd == 1) {
+        mode = STORAGE_FLOOR_B;
+        lineType == BLACK;
+        motorWrite(baseSpeed, baseSpeed);
+        delay(150);
+
+      } else if (leftEnd == 1) {
+        // Find a T junction, just skip it
+        motorStop();
+        beep(i);
+        delay(10);
+        motorWrite(150, 150);
+        delay(250);
+        i--;
+        j--;
+
+      } else {
+        lineFollow(linePos);
+      }
+
+      break;
+
+    //-------------------------------------------------------------------------------------------------------------- Follow storage floor reverse (Black Line)
+    case STORAGE_FLOOR_B:
+
+      linePos = readSensorLine(sensor_values);
+
+      if (leftEnd == 1 &&  rightEnd == 1 ) {
+        // End of the storage floor
+        lineType = WHITE;
+        mode = OUTER_FLOOR_B;
+
+      } else if (rightEnd == 1 && i > 0) {
+        // Find a T junction, just skip it
+        motorStop();
+        beep(i);
+        delay(10);
+        motorWrite(150, 150);
+        delay(250);
+        i--;
+        j--;
+
+      } else {
+        lineFollow(linePos);
+      }
+
+      break;
+
+    //-------------------------------------------------------------------------------------------------------------- Outer floor :reverse
+    case OUTER_FLOOR_B:
+      linePos = readSensorLine(sensor_values);
+
+      if (allIn == 1) {
+        motorWrite(150, 150);
+        delay(150);
+        motorStop();
+        beep(3);
+      } else {
+        lineFollow(linePos);
+      }
+      break;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     //-------------------------------------------------------------------------------------------------------------- Test
     case TEST:
-      buttonStatus = digitalRead(BUTTON_1);
-      lineType = BLACK;
-      rotate90(CW);
-      findEnd();
-      //backToLine();
+      //buttonStatus = digitalRead(BUTTON_1);
 
-      delay(10000);
+      lineType = BLACK;
+
+      Serial.println("rotate");
+      rotate90(CCW);
+      Serial.println("findShelf");
+      findShelf();
+      Serial.println("backToPath");
+      backToPath();
 
       /*if (buttonStatus == 0 ) {
         mode = BEGIN;
@@ -141,16 +280,27 @@ void displayLoopStatus(int mode) {
       case WHITE_SQUARE:
         Serial.println("WHITE_SQUARE");
         break;
-      case FOLLOW_OUTER:
-        Serial.println("FOLLOW_OUTER");
+
+      case OUTER_FLOOR:
+        Serial.println("Outer Floor");
         break;
-      case FOLLOW_STORAGE:
-        Serial.println("FOLLOW_STORAGE");
+      case STORAGE_FLOOR:
+        Serial.println("Storage Floor");
+        break;
+      case PROD_FLOOR:
+        Serial.println("Production Floor");
         break;
 
-      case LINE_FOLLOW:
-        Serial.println("LINE_FOLLOW");
+      case OUTER_FLOOR_B:
+        Serial.println("Outer Floor : Back");
         break;
+      case STORAGE_FLOOR_B:
+        Serial.println("Storage Floor : Back");
+        break;
+      case PROD_FLOOR_B:
+        Serial.println("Production Floor : Back");
+        break;
+
       case TEST:
         Serial.println("TEST");
         break;
