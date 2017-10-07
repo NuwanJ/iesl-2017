@@ -1,9 +1,11 @@
 
+enum {Bx0, Bx3, Bx5, Sf0,  Sf3, Sf5};
+int layout[] = {Bx0, Bx3, Bx5, Sf5,  Sf3, Sf0};
 
 #define BLACK 0
 #define WHITE 1
 
-boolean debug = 0;
+boolean debug = 1;
 int lineType =  BLACK;
 
 #define FRONT 8
@@ -46,11 +48,6 @@ int lastReading = CENTER_EDGE_READING;
 int weight = 0, sum = 0, value = 0;
 int leftEnd = 0, rightEnd = 0;
 int reading[6];
-
-//-------------------------------------------------------------------------------------------------------------- Game Area Layout
-
-enum {Bx0, Bx3, Bx5, Sf0,  Sf3, Sf5};
-int layout[] = {Bx0, Bx3, Bx5, Sf5,  Sf3, Sf0};
 
 //-------------------------------------------------------------------------------------------------------------- Line Following
 

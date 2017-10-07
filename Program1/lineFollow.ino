@@ -46,7 +46,7 @@ void lineFollow(int pos) {
 
 int calculatePID(int error) {
 
-  int P = error * 20;
+  int P = error * kP;
   int I = I + (error * kI);
   int D = (error - lastError) * 0;
 

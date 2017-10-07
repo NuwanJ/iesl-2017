@@ -1,7 +1,11 @@
 
 /*
    b -> debug (on|off)
-
+   k -> Sunde buzzer
+   0 -> Start Game (mode == WHITE_SQUARE)
+   q -> print IR sensor values
+   s -> show EEPROM values
+   r -> reset EEPROM
 */
 void serialEvent() {
 
@@ -44,16 +48,14 @@ void serialEvent() {
 
     }
 
-    //-------------------------------------------------------------------------------------------------------------- s -> ???
+    //-------------------------------------------------------------------------------------------------------------- s -> shoe EEPROM variables
     else if (inChar == 's') {
-      /*
-        Serial.print("Kp\t:"); Serial.println(kP * 10);
-        Serial.print("Ki\t:"); Serial.println(kI * 10);
-        Serial.print("Kd\t:"); Serial.println(kD * 10);
-        Serial.print("Base\t:" ); Serial.println(baseSpeed);
-        Serial.print("Max\t:"); Serial.println(maxSpeed);
-        Serial.print("Debug\t:"); Serial.println(debug);
-      */
+      printEEPROM();
+    }
+
+    //-------------------------------------------------------------------------------------------------------------- s -> reset EEPROM variables
+    else if (inChar == 'r') {
+      resetEEPROM();
     }
 
     //-------------------------------------------------------------------------------------------------------------- t -> test
