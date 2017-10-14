@@ -6,6 +6,8 @@
 boolean debug = 0;
 int lineType =  BLACK;
 
+#define slave_address 8
+
 #define FRONT 8
 #define LEFT 4
 #define RIGHT 6
@@ -46,6 +48,8 @@ int lastReading = CENTER_EDGE_READING;
 int weight = 0, sum = 0, value = 0;
 int leftEnd = 0, rightEnd = 0;
 int reading[6];
+
+int frontSensor[] = {0, 0 , 0, 0};
 
 //-------------------------------------------------------------------------------------------------------------- Game Area Layout
 

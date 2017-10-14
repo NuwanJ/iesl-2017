@@ -148,3 +148,41 @@ void alignToPath(int dir) {
 
 }
 
+
+int detectShelf(int i) {
+
+  int  s = readIR();
+  int t = 0;
+  
+  if (s == 0) {
+    // 0x0 NoBox
+    Serial.println("0x0 NoBox");
+    t = 0;
+
+  } else if (s == 1) {      // 0001
+    // 3x3 NoBox
+    Serial.println("3x3 NoBox");
+    t = 3;
+
+  } else if (s == 11) {     // 0011 -> Take Box 0
+    // 0x0 Box || 5x5 NoBox
+    Serial.println("0x0 Box || 5x5 NoBox ");
+    t = 5;
+
+  } else if (s == 111) {    // 0111 -> Take Box 3
+    // 3x3 Box
+    Serial.println("3x3 Box");
+    t = 13;
+
+  } else if (s == 1111) {   // 1111 -> Take Box 5
+    // 5x5 Box
+    Serial.println("5x5 Box");
+    t = 15;
+
+  } else {
+    Serial.println(s);
+    t = 99;
+  }
+  return t;
+}
+

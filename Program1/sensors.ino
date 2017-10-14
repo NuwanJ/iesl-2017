@@ -33,9 +33,9 @@ int readSensorLine(unsigned int *sensor_values) {
     irLineString = (String)value + " " + irLineString;
   }
 
-  allOut = (sum ==0) ? true : false;
-  allIn  = (sum ==NUM_SENSORS) ? true : false;
-  
+  allOut = (sum == 0) ? true : false;
+  allIn  = (sum == NUM_SENSORS) ? true : false;
+
   leftEnd = sensor_values[NUM_SENSORS - 1];
   rightEnd = sensor_values[0];
 
@@ -72,6 +72,7 @@ int irSensorRead(int num) {
 
 
 #if defined(SONAR_SENSORS)
+
 void sonarBegin() {
 
   Serial.println(">> Sonar : Begin");
@@ -96,3 +97,26 @@ int getSonarDistance() {
   return distance;
 }
 #endif
+
+
+
+int readIR() {
+  int x = wire_write('I');
+
+  frontSensor[0] = x % 2;
+  frontSensor[1] = (x / 2) % 2;
+  frontSensor[2] = (x / 4) % 2;
+  frontSensor[3] = (x / 8) % 2;
+
+  if (debug) {
+    Serial.print(">> Front Sensors : ");
+    Serial.print(frontSensor[0]);
+    Serial.print(frontSensor[1]);
+    Serial.println(frontSensor[2]);
+    Serial.println(frontSensor[3]);
+  }
+
+  return frontSensor[3] * 1000 +  frontSensor[2] * 100 + frontSensor[1] * 10 + frontSensor[0];
+}
+
+

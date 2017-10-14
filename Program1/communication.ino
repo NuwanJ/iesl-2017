@@ -45,6 +45,7 @@ void serialEvent() {
       Serial.print(linePos);
       Serial.print(" | ");
       Serial.println(irLineString);
+      Serial.println(20000+ readIR());
 
     }
 
@@ -78,6 +79,34 @@ void serialEvent() {
 }
 
 
+int wire_write(char cmd) {
+
+  // SEND COMMAND
+  Wire.beginTransmission(slave_address);
+  Wire.write(cmd);
+  delay(10);
+
+  // GET RESPONSE
+  char receivedValue;
+  int available = Wire.requestFrom(slave_address, (byte)1);
+  if (available == 1)
+  {
+    //receivedValue = Wire.read() << 8 | Wire.read(); // combine two bytes into integer
+    receivedValue = Wire.read();
+  }
+  else
+  {
+    Serial.print("ERROR: Unexpected number of bytes received (XSensorValue): ");
+    Serial.println(available);
+  }
+  Wire.endTransmission();
+
+  return receivedValue;
+}
+
+
+
+
 void beep() {
   mySerial.print("k");
 }
@@ -85,3 +114,4 @@ void beep() {
 void beep(int k) {
   for (k; k > 0; k--)mySerial.print("k");
 }
+

@@ -30,7 +30,7 @@ void loadEEPROM() {
 
   if ((int)EEPROM.read(149) == 148) {
     //Serial.println(">> EEPROM laoded !!! ");
-    
+
     // If EEPROM already has data
     kP = (float)EEPROM.read(eP + 100) / 10;
     kI = (float)EEPROM.read(eI + 100) / 10;
@@ -39,7 +39,7 @@ void loadEEPROM() {
     baseSpeed = (int)EEPROM.read(eBase + 100);
     maxSpeed = (int)EEPROM.read(eMax + 100);
     Serial.println(EEPROM.read(149));
-    
+
   } else {
     Serial.println(">> EEPROM Reprogrammed !!! ");
     resetEEPROM();
@@ -50,8 +50,10 @@ void loadEEPROM() {
 
 void resetEEPROM() {
 
+  EEPROM.update(149, 148);
+  
   // Write with default values
-  EEPROM.update(100 + eP , 20*10);
+  EEPROM.update(100 + eP , 20 * 10);
   EEPROM.update(100 + eI , 0);
   EEPROM.update(100 + eD , 0);
 

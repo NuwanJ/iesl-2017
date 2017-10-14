@@ -1,4 +1,20 @@
 
+void sensorBegin() {
+
+  pinMode(PIN_IR_1, INPUT);
+  pinMode(PIN_IR_2, INPUT);
+  pinMode(PIN_IR_3, INPUT);
+  pinMode(PIN_IR_4, INPUT);
+}
+
+void readIRSensors() {
+  irSensors[0] = 1 - digitalRead(PIN_IR_1);
+  irSensors[1] = 1 - digitalRead(PIN_IR_2);
+  irSensors[2] = 1 - digitalRead(PIN_IR_3);
+  irSensors[3] = 1 - digitalRead(PIN_IR_4);
+}
+
+
 // ---- Sonar Sensor Functions -----------------------------------------------------------------------
 
 void sonarBegin() {

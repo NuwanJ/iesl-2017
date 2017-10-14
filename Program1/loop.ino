@@ -66,7 +66,7 @@ void loop() {
         // End of the storage floor
         lineType = WHITE;
         i = 3;
-        j = 3;
+        //j = 3;
         mode = PROD_FLOOR;
 
       } else  if (leftEnd == 1 && i < 3) {
@@ -85,6 +85,40 @@ void loop() {
         rotate90(CCW);
         Serial.println("findShelf");
         findShelf();
+
+        // Now check about ith shelf
+        int r = detectShelf(i);
+
+        if (r == 0) {
+          layout[i] = Bx0;
+        } else if (r == 3) {
+          layout[i] = Bx3;
+        } else if (r == 5) {
+          // Have doubt, take box0 and check again
+          wire_write("{");
+          delay(5000);
+          int temp0 = readIR();
+          if (temp0 == 011) {
+            layout[i] = Bx5;    // No Box
+          } else {
+            layout[i] = Bx0;    // Box exist
+            r = 10;
+          }
+        }
+
+        if (r > 10) {
+          // Take box
+          if (r - 10 == 0) {
+            wire_write("{");
+            j = 
+          } else if (r - 10 == 3) {
+            wire_write("}");
+          } else if (r - 10 == 5) {
+            wire_write("|");
+          }
+        }
+        delay(5000);
+
         Serial.println("backToPath");
         backToPath();
         Serial.println("rotate CCW");
@@ -94,7 +128,7 @@ void loop() {
         delay(250);
 
         i++;
-        j++;
+        //j++;
 
       } else {
         lineFollow(linePos);
@@ -114,7 +148,7 @@ void loop() {
         //delay(1000);
 
         i++;
-        j++;
+        //j++;
 
         motorWrite(150, 150);
         delay(250);
@@ -169,7 +203,7 @@ void loop() {
         motorWrite(150, 150);
         delay(250);
         i--;
-        j--;
+        //j--;
 
       } else {
         lineFollow(linePos);
@@ -195,7 +229,7 @@ void loop() {
         motorWrite(150, 150);
         delay(250);
         i--;
-        j--;
+        //j--;
 
       } else {
         lineFollow(linePos);
@@ -236,14 +270,8 @@ void loop() {
     case TEST:
       //buttonStatus = digitalRead(BUTTON_1);
 
-      lineType = BLACK;
-
-      Serial.println("rotate");
-      rotate90(CCW);
-      Serial.println("findShelf");
-      findShelf();
-      Serial.println("backToPath");
-      backToPath();
+      test();
+      delay(2000);
 
       /*if (buttonStatus == 0 ) {
         mode = BEGIN;

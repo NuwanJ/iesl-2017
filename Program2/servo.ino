@@ -1,50 +1,78 @@
 
 
 #define PICK_ON 160
-#define PICK_OFF 40
+#define PICK_OFF 80
 
-#define GRAB_UP 30
-#define GRAB_DOWN 100   /// 90 Nuwan
+
+#define GRAB_UP 50
+#define GRAB_0 170
+#define GRAB_3 160
+#define GRAB_5 150
+
+
+void handleServo(int type) {
+
+  buzzer(type + 1);
+  readyToPick(type);
+  //delay(1000);
+  pickBox();
+  //delay(1000);
+  dropBox(type);
+  delay(1000);
+  //stand();
+}
+
 
 void pickBox() {
 
   attachServos();
+
   pick.write(PICK_ON);
   delay(1000);
   grab.write(GRAB_UP);
-  delay(500);
+  delay(1500);
   detachServos();
-  //Serial.println(">> Pick : Complete");
+  Serial.println(">> Pick : Complete");
 
 }
 
-void  readyToPick() {
+void readyToPick(int type) {
   attachServos();
   pick.write(PICK_OFF);
   delay(1000);
-  grab.write(GRAB_DOWN);
+
+  if (type == 0)grab.write(GRAB_0);
+  else if (type == 1)grab.write(GRAB_3);
+  else if (type == 2)grab.write(GRAB_5);
+
   delay(1000);
   detachServos();
-  //Serial.println(">> readyToPick : Complete");
+  Serial.println(">> readyToPick : Complete");
 }
 
-void dropBox() {
+void dropBox(int type) {
   attachServos();
-  grab.write(GRAB_DOWN);
+
+  if (type == 0)grab.write(GRAB_0);
+  else if (type == 1)grab.write(GRAB_3);
+  else if (type == 2)grab.write(GRAB_5);
+
   delay(1000);
   pick.write(PICK_OFF);
   delay(500);
   detachServos();
-  //Serial.println(">> Drop : Complete");
+  datachServoPick();
+  Serial.println(">> Drop : Complete");
 }
 
 void stand() {
   attachServos();
-  grab.write(30);
+  grab.write(GRAB_UP);
   delay(500);
   pick.write(PICK_ON);
   delay(1000);
   detachServos();
+  datachServoPick();
   //Serial.println(">> stand : Complete");
 }
 
@@ -54,8 +82,11 @@ void attachServos() {
 }
 
 void detachServos() {
-  pick.detach();
   grab.detach();
+}
+
+void datachServoPick() {
+  pick.detach();
 }
 
 
